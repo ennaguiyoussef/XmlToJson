@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.transformers.HelloController"
+      spacing="10" prefWidth="653.0" prefHeight="546.0">
+
+    <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+    <!-- Barre d'outils -->
+    <HBox spacing="20" alignment="CENTER">
+        <Button fx:id="open" onAction="#onClickOpenFile" text="Open" prefWidth="100"/>
+        <ComboBox fx:id="combo" prefWidth="150" onAction="#permutation"/>
+        <Button fx:id="save" onAction="#onClickSave" text="Save" prefWidth="100"/>
+    </HBox>
+
+    <!-- Zone de texte -->
+    <SplitPane dividerPositions="0.5" VBox.vgrow="ALWAYS">
+        <AnchorPane>
+            <VBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Label text="Source" style="-fx-font-weight: bold"/>
+                <TextArea fx:id="textArea1" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </AnchorPane>
+        <AnchorPane>
+            <VBox AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                  AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+                <Label text="Résultat" style="-fx-font-weight: bold"/>
+                <TextArea fx:id="textArea2" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </AnchorPane>
+    </SplitPane>
+
+    <!-- Bouton Convert et message d'erreur -->
+    <VBox spacing="5" alignment="CENTER">
+        <Button fx:id="convert" onAction="#onClickConvert" text="Convert" prefWidth="150"/>
+        <Label fx:id="errorLabel" textFill="RED"/>
+    </VBox>
+
+</VBox>
