@@ -1,0 +1,43 @@
+{
+  "library": {
+    "book": [
+      {
+        "id": "1",
+        "category": "fiction",
+        "title": "Le Petit Prince",
+        "author": "Antoine de Saint-Exupéry",
+        "year": "1943",
+        "price": {
+          "currency": "EUR",
+          "#text": "12.99"
+        },
+        "available": "true"
+      },
+      {
+        "id": "2",
+        "category": "science",
+        "title": "Une brève histoire du temps",
+        "author": "Stephen Hawking",
+        "year": "1988",
+        "price": {
+          "currency": "EUR",
+          "#text": "15.50"
+        },
+        "available": "false"
+      },
+      {
+        "id": "3",
+        "category": "fiction",
+        "title": "1984",
+        "author": "George Orwell",
+        "year": "1949",
+        "price": {
+          "currency": "EUR",
+          "#text": "10.99"
+        },
+        "available": "true"
+      }
+    ]
+  }
+}
+

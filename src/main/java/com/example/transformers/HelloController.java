@@ -2,17 +2,15 @@ package com.example.transformers;
 
 import com.example.transformers.converter.api.JsonToXmlApi;
 import com.example.transformers.converter.api.XmlToJsonApi;
+import com.example.transformers.converter.natif.JsonToXmlNatif;
+import com.example.transformers.converter.natif.XmlToJsonNatif;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.lang.classfile.Label;
 import java.nio.file.Files;
-import java.util.Objects;
 
 public class HelloController {
 
@@ -28,23 +26,40 @@ public class HelloController {
     private Button convert;
     @FXML
     private ComboBox<String> combo;
+    @FXML
+    private Label errorLabel;
+    @FXML
+    private RadioMenuItem useApiRadio;
+    @FXML
+    private RadioMenuItem useNativeRadio;
+    @FXML
+    private ToggleGroup conversionModeGroup;
 
-    XmlToJsonApi xmlToJsonApi ;
-    JsonToXmlApi jsonToXmlApi ;
+    private boolean useApi = true;
 
-    public HelloController(){
-
+    public HelloController() {
     }
 
-
-
-    public void initialize(){
-
+    @FXML
+    public void initialize() {
+        // Initialiser le ComboBox
         combo.getItems().add("JSON to XML");
         combo.getItems().add("XML TO JSON");
         combo.getSelectionModel().select(1);
+
+        // Écouter les changements de mode (API vs Natif)
+        conversionModeGroup.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue == useApiRadio) {
+                useApi = true;
+                errorLabel.setText("Mode: API activé");
+            } else if (newValue == useNativeRadio) {
+                useApi = false;
+                errorLabel.setText("Mode: Code natif activé");
+            }
+        });
     }
 
+    @FXML
     public void permutation(ActionEvent actionEvent) {
         String selectedItem = combo.getSelectionModel().getSelectedItem();
 
@@ -53,16 +68,17 @@ public class HelloController {
             textArea1.setText(textArea2.getText());
             textArea2.setText(temp);
         }
-
     }
 
+    @FXML
     public void onClickOpenFile() {
-        FileChooser fileChooser =  new FileChooser();
-        
-        //xml
+        FileChooser fileChooser = new FileChooser();
+
+        // Extensions XML
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
-        //json
+
+        // Extensions JSON
         FileChooser.ExtensionFilter extFilter2 = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
         fileChooser.getExtensionFilters().add(extFilter2);
 
@@ -72,35 +88,60 @@ public class HelloController {
             try {
                 String content = Files.readString(file.toPath());
                 textArea1.setText(content);
+                errorLabel.setText("Fichier chargé: " + file.getName());
             } catch (Exception e) {
-                textArea1.setText("Erreur lors de la lecture du fichier: " + e.getMessage());
+                errorLabel.setText("Erreur lors de la lecture du fichier: " + e.getMessage());
             }
         }
-        
     }
 
+    @FXML
     public void onClickConvert() {
         String inputText = textArea1.getText();
         String result = "";
 
-        if (combo.getValue().equals("XML TO JSON")) {
-            XmlToJsonApi xmlToJsonApi = new XmlToJsonApi();
-            result = xmlToJsonApi.convert(inputText);
-        } else if (combo.getValue().equals("JSON to XML")) {
-            JsonToXmlApi jsonToXmlApi = new JsonToXmlApi();
-            result = jsonToXmlApi.convert(inputText);
-        }
+        try {
+            if (combo.getValue().equals("XML TO JSON")) {
+                if (useApi) {
+                    // Utiliser l'API
+                    XmlToJsonApi xmlToJsonApi = new XmlToJsonApi();
+                    result = xmlToJsonApi.convert(inputText);
+                } else {
+                    // Utiliser le code natif
+                    XmlToJsonNatif xmlToJsonNatif = new XmlToJsonNatif();
+                    result = xmlToJsonNatif.convert(inputText);
+                }
+            } else if (combo.getValue().equals("JSON to XML")) {
+                if (useApi) {
+                    // Utiliser l'API
+                    JsonToXmlApi jsonToXmlApi = new JsonToXmlApi();
+                    result = jsonToXmlApi.convert(inputText);
+                } else {
+                    // Utiliser le code natif
+                    JsonToXmlNatif jsonToXmlNatif = new JsonToXmlNatif();
+                    result = jsonToXmlNatif.convert(inputText);
+                }
+            }
 
-        textArea2.setText(result);
+            textArea2.setText(result);
+            errorLabel.setText("Conversion réussie (" + (useApi ? "API" : "Natif") + ")");
+            errorLabel.setStyle("-fx-text-fill: green;");
+
+        } catch (Exception e) {
+            errorLabel.setText("Erreur lors de la conversion: " + e.getMessage());
+            errorLabel.setStyle("-fx-text-fill: red;");
+        }
     }
 
+    @FXML
     public void onClickSave() {
         FileChooser fileChooser = new FileChooser();
 
-        //xml
+        // Extensions XML
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
-        //json
+
+        // Extensions JSON
         FileChooser.ExtensionFilter extFilter2 = new FileChooser.ExtensionFilter("JSON files (*.json)", "*.json");
         fileChooser.getExtensionFilters().add(extFilter2);
 
@@ -109,8 +150,11 @@ public class HelloController {
         if (file != null) {
             try {
                 Files.writeString(file.toPath(), textArea2.getText());
+                errorLabel.setText("Fichier sauvegardé: " + file.getName());
+                errorLabel.setStyle("-fx-text-fill: green;");
             } catch (Exception e) {
-                textArea2.setText("Erreur lors de la sauvegarde du fichier: " + e.getMessage());
+                errorLabel.setText("Erreur lors de la sauvegarde du fichier: " + e.getMessage());
+                errorLabel.setStyle("-fx-text-fill: red;");
             }
         }
     }

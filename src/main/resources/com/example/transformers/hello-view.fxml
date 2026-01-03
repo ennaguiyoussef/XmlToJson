@@ -10,6 +10,22 @@
 
     <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
 
+    <!-- Menu Bar -->
+    <MenuBar>
+        <Menu text="Options">
+            <RadioMenuItem fx:id="useApiRadio" text="Utiliser API" selected="true">
+                <toggleGroup>
+                    <ToggleGroup fx:id="conversionModeGroup"/>
+                </toggleGroup>
+            </RadioMenuItem>
+            <RadioMenuItem fx:id="useNativeRadio" text="Utiliser Code Natif">
+                <toggleGroup>
+                    <fx:reference source="conversionModeGroup"/>
+                </toggleGroup>
+            </RadioMenuItem>
+        </Menu>
+    </MenuBar>
+
     <!-- Barre d'outils -->
     <HBox spacing="20" alignment="CENTER">
         <Button fx:id="open" onAction="#onClickOpenFile" text="Open" prefWidth="100"/>

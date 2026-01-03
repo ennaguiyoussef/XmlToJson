@@ -1,0 +1,14 @@
+{
+  "person": {
+    "age": "30",
+    "country": "France",
+    "name": "Jean Dupont",
+    "email": "jean.dupont@example.com",
+    "address": {
+      "street": "123 Rue de la Paix",
+      "city": "Paris",
+      "postalCode": "75001"
+    }
+  }
+}
+

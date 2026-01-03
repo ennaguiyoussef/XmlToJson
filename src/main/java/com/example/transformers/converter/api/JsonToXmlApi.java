@@ -2,16 +2,22 @@ package com.example.transformers.converter.api;
 
 import org.json.JSONObject;
 import org.json.XML;
+import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
 
 public class JsonToXmlApi {
 
     public JsonToXmlApi() {
-
     }
 
     public String convert(String jsonInput) {
-
-        try{
+        try {
             JSONObject jsonObject = new JSONObject(jsonInput);
             String xmlOutput = XML.toString(jsonObject);
             return formatXml(xmlOutput);
@@ -22,21 +28,38 @@ public class JsonToXmlApi {
 
     private String formatXml(String xml) {
         try {
-            javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-            javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
-            org.w3c.dom.Document doc = db.parse(new java.io.ByteArrayInputStream(xml.getBytes()));
+            String wrappedXml = "<root>" + xml + "</root>";
 
-            javax.xml.transform.TransformerFactory tf = javax.xml.transform.TransformerFactory.newInstance();
-            javax.xml.transform.Transformer transformer = tf.newTransformer();
-            transformer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+            InputSource src = new InputSource(new StringReader(wrappedXml));
+            Node document = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder()
+                    .parse(src)
+                    .getDocumentElement();
 
-            java.io.StringWriter writer = new java.io.StringWriter();
-            transformer.transform(new javax.xml.transform.dom.DOMSource(doc), new javax.xml.transform.stream.StreamResult(writer));
+            // Utilisation de LSSerializer (plus moderne et robuste pour le formatage)
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+            LSSerializer writer = impl.createLSSerializer();
 
-            return writer.toString();
+            // Configuration du Pretty Print
+            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+            writer.getDomConfig().setParameter("xml-declaration", false);
+
+            // On sérialise uniquement les enfants de notre fausse racine "root"
+            // Cela permet de récupérer le XML formaté sans la balise <root> ajoutée artificiellement
+            StringBuilder sb = new StringBuilder();
+            var childNodes = document.getChildNodes();
+            for(int i=0; i<childNodes.getLength(); i++) {
+                sb.append(writer.writeToString(childNodes.item(i)));
+                sb.append("\n"); // Ajout manuel du saut de ligne entre les blocs principaux
+            }
+
+            return sb.toString().trim();
+
         } catch (Exception e) {
-            return xml; // Retourner le XML non formaté en cas d'erreur
+            // En cas d'erreur, on retourne le XML brut pour au moins voir le résultat
+            System.err.println("Erreur de formatage : " + e.getMessage());
+            return xml;
         }
     }
 }
